@@ -1,0 +1,68 @@
+%%%%%%%%%%%%%%% Paramters %%%%%%%%%%%%%%%%%%
+  n: running step
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% data structure %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 1. dislocation_segments_array(n): (n*N*5) .T
+					      1            2              3             4
+         Segment No.    Core structure   Position(B)   Position(Pi1)  Position(Pi2) Position(P) 
+             0,       [       1,              0            0               0            0       ]
+             1,       |       2,              0            0               0            0       |
+             2,       |       1,              0            0               0            0       |
+             3,       |       4,              0            0               0            0       |
+             4,       |       1,              0            0               0            0       |
+             .        |       .               .            .               .            .       |
+             .        |       .               .            .               .            .       |
+             .        |       .               .            .               .            .       |
+            N-1,      [       3               0            0               0            0       ]
+     ### (1 = B core, 2 = Pi core, 3 = Pi' core, 4 = P core) ###
+
+     %%% At next step:
+					      1            2              3             4
+         Segment No.    Core structure   Position(B)   Position(Pi1)  Position(Pi2) Position(P) 
+             0,       [       1,              0            0               0            0       ]
+             1,       |       2,              0            0               0            0       |
+             2,       |       1,              0            0               0            0       |
+             3,       |       4,              1            0               0            0       |
+             4,       |       1,              0            0               0            0       |
+             .        |       .               .            .               .            .       |
+             .        |       .               .            .               .            .       |
+             .        |       .               .            .               .            .       |
+            N-1,      [       3               0            0               0            0       ]
+
+% 2. node_segment_array(n): (N*2*n)      
+%   Node 0 is the node between segement 0 and 1. 
+    (1) When sum(1,2,3,4) == [0,0,0,0], form a loop (at least 4 running step to form a loop), e.g:
+          Running step.            History height   
+                               0, 1, 2, 3, 4, ... , N-1      
+             1,      [        [[coor_left, coor_right],  0,  0,  0,  0,]   ]
+
+             2,      |        [0,  0,  0,  4,  1,]   | 
+             3,      |        [0,  1,  4, -4, -1,]   | 
+             4,      |        [0, -1, -4,  0,  0,]   | 
+             5,      |        [0,  0,  0,  0,  0,]   |
+             .       |        [...]                  |
+             .       |        [...]                  |
+             .       |        [...]                  |
+             n,      [        [0,  0,  0,  0,  0,]   ]
+
+     (1) When sum(neighbours) == 0, kink disappear, e.g:
+          Node No.            History height         
+             0,      [        [0,  0,  0,  0,  0,]   ]
+             1,      |        [0,  0,  0,  0,  0,]   | sum = [ 0,0,0,0]
+             2,      |        [0,  1,  0, -1,  0,]   | sum = [ 1,0,0,0]->[0,0,0,0], get back to initial state and kink disappear.
+             3,      |        [0, -1,  0,  1,  0,]   | sum = [-1,0,0,0]->[0,0,0,0], get back to initial state and kink disappear.
+             4,      |        [0,  0,  0,  0,  0,]   | sum = [ 0,0,0,0]
+             .       |        [...]                  |
+             .       |        [...]                  |
+             .       |        [...]                  |
+            N-1,     [        [0,  0,  0,  0,  0,]   ]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
