@@ -143,9 +143,9 @@ class elastic_interaction_energy:
 
 
 if __name__ == '__main__':
-    for i in range(1,4):
+    for i in range(1,2):
         disl_hon_seg, disl_ver_seg = generate_dislocation_line(20,P=i)
-        #print(disl_hon_seg.shape, disl_ver_seg)
+        print(disl_hon_seg, disl_ver_seg)
         a = 2.9365976437421808
         c = 4.6410202908664067
         print('B len = ', np.sqrt(3)*a)
