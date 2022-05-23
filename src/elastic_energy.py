@@ -1,5 +1,5 @@
-from os import wait4
 import numpy as np
+from line_math import is_parallel, is_perpendicular
 
 def W_ns(R,W0,A1,A2,A2_p,A3,A3_p,A4,A5,v,v_p,t,t_p,tt_p,u,uu,rc):
     Ra = np.sqrt(np.dot(R,R)+rc**2)
@@ -20,6 +20,7 @@ def W_ns(R,W0,A1,A2,A2_p,A3,A3_p,A4,A5,v,v_p,t,t_p,tt_p,u,uu,rc):
 
 def W_ns_para(bt,b,R,nu,mu,bb,rc,t):
     bR = np.dot(b,R)
+    #print(b,R)
     Ra = np.sqrt(np.dot(R,R)+rc**2)
     Rt = np.dot(R,t)
     #print((bR-Rt*bt)*(bR-Rt*bt)*Ra/(Ra**2-Rt**2))
@@ -31,20 +32,6 @@ def W_ns_para(bt,b,R,nu,mu,bb,rc,t):
     W_ns = W_ns_W0*W0
 
     return W_ns
-
-def is_parallel(x1,x2,x3,x4):
-    vec1 = x2-x1
-    vec2 = x4-x3
-    if abs(vec1[0]*vec2[1]-vec1[1]*vec2[0] + vec1[0]*vec2[2]-vec1[2]*vec2[0] + vec1[1]*vec2[2]-vec1[2]*vec2[1]) <1e-4:
-        return True                                                                                                     
-    else:
-        return False
-
-def vec_is_parallel(vec1, vec2):
-    if abs(vec1[0]*vec2[1]-vec1[1]*vec2[0] + vec1[0]*vec2[2]-vec1[2]*vec2[0] + vec1[1]*vec2[2]-vec1[2]*vec2[1]) <1e-4:
-        return True
-    else:
-        return False
 
 def W_self(L_vec,rc,mu,nu,bb,bt):
     L = np.linalg.norm(L_vec)
@@ -94,7 +81,6 @@ class elastic_interaction_energy_ij():
             A4 = (bt*bv+bt_p*bv_p)*tt_p
             A5 = 2*bu**2*tt_p/uu
             return W0,A1,A2,A2_p,A3,A3_p,A4,A5,v,v_p,t,t_p,tt_p,u,uu,self.rc,bb,bt
-        
         else:
             return t,t_p,tt_p,self.rc,bb,bt
 
@@ -104,6 +90,7 @@ class elastic_interaction_energy_ij():
         R3 = self.x4-self.x1
         R4 = self.x3-self.x2
         
+
         if is_parallel(self.x1,self.x2,self.x3,self.x4) == False:
             W0,A1,A2,A2_p,A3,A3_p,A4,A5,v,v_p,t,t_p,tt_p,u,uu,rc,bb,bt = self.parameters()
             W1 = W_ns(R1,W0,A1,A2,A2_p,A3,A3_p,A4,A5,v,v_p,t,t_p,tt_p,u,uu,rc)
@@ -150,6 +137,7 @@ if __name__ =='__main__':
     rc = 10*np.linalg.norm(b)
     mu = C44
     nu = C13/(2*(C13+C44))
+    '''
 
     x1 = np.array([0,0,0])
     x2 = np.array([0, 5.08633632, 4.64102029])
@@ -179,10 +167,18 @@ if __name__ =='__main__':
     x3 = np.array([23.49278115  ,0.      ,    0.        ])
     x4 = np.array([23.49278115, 15.25900896 ,13.92306087])
     W4 = elastic_interaction_energy_ij(x1,x2,x3,x4,b,mu,nu,rc).calc_elastic_interaction()
-    print(W4)
+    #print(W4)
+    '''
+    x1 = np.array([0,0,0])
+    x2 = np.array([0,1,0])
+    x3 = np.array([10,0,0])
+    x4 = np.array([10,1,0])
+    W5 = elastic_interaction_energy_ij(x1,x2,x3,x4,b,mu,nu,rc).calc_elastic_interaction()
+    print(W5)
+    
 
     #print(W1+W2,W3/2)
-    print(W3)
+    #print(W3)
 
 
 

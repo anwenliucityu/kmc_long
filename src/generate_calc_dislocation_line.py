@@ -8,22 +8,24 @@ def generate_dislocation_line(num_hon_seg, init_core=3, B=0,Pi=0,P=0,a=2.9365976
     # Initiate core structure to be P core. 0=B, 1=Pi1, 2=Pi2, 3=P
     disl_hon_seg[0,:] = init_core
     disl_ver_seg = np.zeros(shape=(1,num_hon_seg,2,2))
+    # add kink
     if B != 0:
         disl_hon_seg[1,int(num_hon_seg/2):] += B*np.sqrt(3)*a
         disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,0] += B*np.sqrt(3)*a/2
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg),0,0] += B*np.sqrt(3)*a/2
+        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,0] += B*np.sqrt(3)*a/2
     if P != 0:
         disl_hon_seg[2,int(num_hon_seg/2):] += P*c
         disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,1] += P*c
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg),0,1] += P*c
+        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,1] += P*c
     if Pi != 0:
         disl_hon_seg[1,int(num_hon_seg/2):] += Pi*np.sqrt(3)*a
         disl_hon_seg[2,int(num_hon_seg/2):] += Pi*c
         disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,0] += Pi*np.sqrt(3)*a/2
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg),0,0] += Pi*np.sqrt(3)*a/2
+        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,0] += Pi*np.sqrt(3)*a/2
         disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,1] += Pi*c
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg),0,1] += Pi*c
+        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,1] += Pi*c
 
+    #print(disl_ver_seg)
     return disl_hon_seg, disl_ver_seg
 
 def switch_hon_seg_coor(disl_hon_seg, seg_len): # switch state to coor
@@ -42,7 +44,7 @@ def switch_init_ver_seg_coor(disl_ver_seg, seg_len): # switch state to coor
     ver_seg_coor[:,1:3] = disl_ver_seg[0].reshape(-1,2)
     ref_coor = ver_seg_coor +0
     ref_coor[disl_ver_seg.shape[1]-1,1:3] = 0
-    ref_coor[(disl_ver_seg.shape[1]-1)*2,1:3] = 0
+    ref_coor[(disl_ver_seg.shape[1]-1)*2,1:3] = ref_coor[(disl_ver_seg.shape[1]-1)*2-1,1:3]
     return ref_coor, ver_seg_coor
     
 def image_coor_x(coor,seg_len):
@@ -104,8 +106,8 @@ class elastic_interaction_energy:
             self.end_point_image   = np.append(self.hon_coor_image_end_point,   self.ver_coor_image_end_point,   axis=0)
             self.start_point = np.append(hon_seg_coor_start,  ref_ver_coor, axis=0)
             self.end_point   = np.append(hon_seg_coor, ver_seg_coor, axis=0)
-            #print(self.end_point)
             #print(self.start_point)
+            #print(self.end_point-self.start_point)
     
     def calc(self, pbc=True):
         if pbc == True:
@@ -143,14 +145,14 @@ class elastic_interaction_energy:
 
 
 if __name__ == '__main__':
-    for i in range(1,2):
+    for i in range(1,4):
         disl_hon_seg, disl_ver_seg = generate_dislocation_line(20,P=i)
-        print(disl_hon_seg, disl_ver_seg)
+        #print(disl_hon_seg, disl_ver_seg)
         a = 2.9365976437421808
         c = 4.6410202908664067
-        print('B len = ', np.sqrt(3)*a)
-        print('Pi len = ', np.sqrt((np.sqrt(3)*a)**2+c**2) )
-        print('P len = ', c)
+        #print('B len = ', np.sqrt(3)*a)
+        #print('Pi len = ', np.sqrt((np.sqrt(3)*a)**2+c**2) )
+        #print('P len = ', c)
         C13 = 83.235
         C44 = 54.91 #GPa
         seg_len = 2*a
