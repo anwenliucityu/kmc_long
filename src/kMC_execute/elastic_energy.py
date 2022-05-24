@@ -190,9 +190,9 @@ if __name__ =='__main__':
     W1 = []
     for i in range(1,100):
         x1 = np.array([0,0,0])
-        x2 = np.array([0, 0,i])
-        x3 = np.array([20,0,i])
-        x4 = np.array([20,0,0])
+        x2 = np.array([0, 0,1])
+        x3 = np.array([i,0,1])
+        x4 = np.array([i,0,0])
         #w1=W_kink_el(x1,x2,x3,x4,rc,nu,mu,unit_plane,b).calc()/160.21766208
         w = elastic_interaction_energy_ij(x1,x2,x3,x4,b,mu,nu,rc,unit_plane).calc_elastic_interaction()
         W1.append(w)

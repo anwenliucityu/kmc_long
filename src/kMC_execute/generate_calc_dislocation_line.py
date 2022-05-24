@@ -149,8 +149,8 @@ class elastic_interaction_energy:
 
 
 if __name__ == '__main__':
-
-    for i in range(0,10):
+    W_list = []
+    for i in range(0,4):
         disl_hon_seg, disl_ver_seg = generate_dislocation_line(20,P=i)
         #print(disl_hon_seg, disl_ver_seg)
         a = 2.9365976437421808
@@ -162,9 +162,11 @@ if __name__ == '__main__':
         C44 = 54.91 #GPa
         seg_len = 2*a
         b = np.array([a,0,0])
-        rc = 10*b[0]
+        rc = 6*b[0]
         init = elastic_interaction_energy(disl_hon_seg, disl_ver_seg,a,c,C13,C44,seg_len,b,rc)
         init.seg_coor_image()
         init.calc()
-        #print(init.W_el)
+        W_list.append(init.W_el)
+    print(W_list)
+    
         
