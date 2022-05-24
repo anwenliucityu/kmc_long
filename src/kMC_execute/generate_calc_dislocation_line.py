@@ -79,6 +79,10 @@ class elastic_interaction_energy:
         self.seg_len = seg_len
         self.b = b
         self.rc = rc
+        self.unit_plane=[[0,  np.sqrt(3)*a/2, 0],   #B
+                         [0,  np.sqrt(3)*a/2, c],   #Pi1
+                         [0, -np.sqrt(3)*a/2, c],   #Pi2
+                         [0,               0, c]]   #P
 
     def seg_coor_image(self, state='initial'):
         if state == 'initial':
@@ -123,7 +127,7 @@ class elastic_interaction_energy:
                 x4 = self.end_point_image[j]
                 # the segment exist (not zero length junction)
                 if np.linalg.norm(x2-x1) >2 and np.linalg.norm(x4-x3) >2:
-                    W_el = elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc).calc_elastic_interaction()
+                    W_el = elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc,self.unit_plane).calc_elastic_interaction()
                     W += W_el
                     #init = elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc)
                     #W_el = pool.apply_async(init.calc_elastic_interaction,)
@@ -135,7 +139,7 @@ class elastic_interaction_energy:
                 x4 = self.end_point[j]
                 # the segment exist (not zero length junction)
                 if np.linalg.norm(x2-x1) >2 and np.linalg.norm(x4-x3) >2:
-                    W_el = elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc).calc_elastic_interaction()
+                    W_el = elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc,self.unit_plane).calc_elastic_interaction()
                     W += W_el/2
                     #init = elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc)
                     #W_el = pool.apply_async(init.calc_elastic_interaction,)
@@ -145,7 +149,8 @@ class elastic_interaction_energy:
 
 
 if __name__ == '__main__':
-    for i in range(1,4):
+
+    for i in range(0,10):
         disl_hon_seg, disl_ver_seg = generate_dislocation_line(20,P=i)
         #print(disl_hon_seg, disl_ver_seg)
         a = 2.9365976437421808
@@ -161,5 +166,5 @@ if __name__ == '__main__':
         init = elastic_interaction_energy(disl_hon_seg, disl_ver_seg,a,c,C13,C44,seg_len,b,rc)
         init.seg_coor_image()
         init.calc()
-        print(init.W_el)
+        #print(init.W_el)
         

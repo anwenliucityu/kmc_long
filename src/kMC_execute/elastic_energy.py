@@ -80,7 +80,7 @@ class W_kink_el:
         return self.coor[j,1]-self.coor[i,1]
      
     def calc(self):
-        W_hh = self.mu/(np.pi*4)*self.b_y**2/(1-nu)*\
+        W_hh = self.mu/(np.pi*4)*self.b_y**2/(1-self.nu)*\
             (self.f(self.x(0,3),self.y(0,2),self.rc)-\
              self.f(self.x(1,3),self.y(0,2),self.rc)-\
              self.f(self.x(0,2),self.y(0,2),self.rc)+\
