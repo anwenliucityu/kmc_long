@@ -150,8 +150,8 @@ if __name__ == '__main__':
         #print(disl_hon_seg, disl_ver_seg)
         a = 2.9365976437421808
         c = 4.6410202908664067
-        #print('B len = ', np.sqrt(3)*a)
-        #print('Pi len = ', np.sqrt((np.sqrt(3)*a)**2+c**2) )
+        #print('B len = ', np.sqrt(3)*a/2)
+        #print('Pi len = ', np.sqrt((np.sqrt(3)*a/2)**2+c**2) )
         #print('P len = ', c)
         C13 = 83.235
         C44 = 54.91 #GPa

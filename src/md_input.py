@@ -117,10 +117,10 @@ def basic_info(latt_const):
     b = np.array([a,0,0])
     rc = 10*a
     seg_len = 2*a
-    unit_plane    = [[0,  np.sqrt(3)*a, 0],   #B
-                     [0,  np.sqrt(3)*a, c],   #Pi1
-                     [0, -np.sqrt(3)*a, c],   #Pi2
-                     [0,             0, c]]   #P
+    unit_plane    = [[0,  np.sqrt(3)*a/2, 0],   #B
+                     [0,  np.sqrt(3)*a/2, c],   #Pi1
+                     [0, -np.sqrt(3)*a/2, c],   #Pi2
+                     [0,               0, c]]   #P
     return b, rc, seg_len, np.array(unit_plane)
 
 
