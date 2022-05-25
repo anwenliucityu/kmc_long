@@ -1,6 +1,8 @@
 import numpy as np
 import generate_calc_dislocation_line as gcdl
 import elastic_energy as ee
+import sys
+#sys.path.append('../kink_energy_fitting/node_2nd_interaction') read fitting data
 
 class disl_core:
     def __init__(self, disl_hon_seg, disl_ver_seg, B_core_prob, i_core_prob, P_core_prob ):
@@ -91,11 +93,12 @@ class loop_line_incremental_energy:
         self.W = W
         return W
 
-    def loop_core_energy(self, unit_plane):
+    def loop_core_energy(self, unit_plane, w_dat):
         seg_core = self.disl_hon_seg[0,:]
         loop_vec = self.end_loop - self.sta_loop
         kink_vec = self.ver_end_coor - self.ver_sta_coor 
 
+        loop_type=np.zeros(shape=(37,))
         # determine the kink type in the loop
         kink_plane = []
         for i in range(loop_vec.shape[0]):
