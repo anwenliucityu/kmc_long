@@ -29,7 +29,12 @@ class loop_line_incremental_energy:
         # loop =  [x1,x2,x3,x4]
         self.end_loop =  np.array(loop)
         self.sta_loop = np.array([loop[3], loop[0], loop[1], loop[2]])
-
+        a = latt_a
+        c = latt_c
+        self.unit_plane    = [[0,  np.sqrt(3)*a/2, 0],   #B
+                              [0,  np.sqrt(3)*a/2, c],   #Pi1
+                              [0, -np.sqrt(3)*a/2, c],   #Pi2
+                              [0,               0, c]]   #P
         self.disl_hon_seg = disl_hon_seg
         self.disl_ver_seg = disl_ver_seg
         self.latt_a = latt_a
@@ -46,6 +51,7 @@ class loop_line_incremental_energy:
             hon_seg_coor = gcdl.switch_hon_seg_coor(self.disl_hon_seg, self.seg_len)
             hon_seg_coor_start = hon_seg_coor + 0
             hon_seg_coor_start[:,0] -= self.seg_len
+            self.hon_seg_coor = hon_seg_coor
 
             # pbc
             hon_seg_coor_pbc, size_x = gcdl.pbc_coor_x(hon_seg_coor, self.seg_len)
@@ -88,34 +94,78 @@ class loop_line_incremental_energy:
                 x4 = self.end_line_pbc[j]
                 # the segment exist (not zero length junction)
                 if np.linalg.norm(x2-x1) >1 and np.linalg.norm(x4-x3) >1:
-                    W_el = ee.elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc).calc_elastic_interaction()
+                    W_el = ee.elastic_interaction_energy_ij(x1,x2,x3,x4,self.b,self.mu,self.nu,self.rc,self.unit_plane).calc_elastic_interaction()
                     W += W_el
         self.W = W
         return W
 
-    def loop_core_energy(self, unit_plane, w_dat):
+    def loop_core_energy(self, w_dat=0):
         seg_core = self.disl_hon_seg[0,:]
+        seg_core_pbc = np.append(seg_core,seg_core); seg_core_pbc = np.append(seg_core_pbc,seg_core)
         loop_vec = self.end_loop - self.sta_loop
         kink_vec = self.ver_end_coor - self.ver_sta_coor 
+        #print(self.ver_sta_coor.shape)
 
-        loop_type=np.zeros(shape=(37,))
+        # make sure loop in the right form (segment length is correct)
+
+        assert np.max(self.end_loop[:,0])-np.min(self.end_loop[:,0])\
+            ==self.hon_seg_coor[1,0]-self.hon_seg_coor[0,0],\
+                "Loop segment length is different from dislocation segment length."
+
+        # initiate kink type
+        loop_type=np.zeros(shape=(37,)) 
         # determine the kink type in the loop
         kink_plane = []
         for i in range(loop_vec.shape[0]):
             for j in range(4):
-                if ee.vec_is_parallel(loop_vec[i], unit_plane[j]) == True:
+                if ee.vec_is_parallel(loop_vec[i], self.unit_plane[j]) == True:
                     #print(loop_vec[i], unit_plane[j])
                     kink_plane.append(j)
-        assert kink_plane[0] == kink_plane[1]
+        assert kink_plane[0] == kink_plane[1], 'The kink pairs in loop are not parallel.'
         kink_plane = list(set(kink_plane))
 
         # determine the node part in the loop
+        # get the core structure near the kink
+        #
+        #   core  |-----|
+        # --------|     |--------
+        #
+        kink_pos_length = np.max(self.end_loop[:,0])
+        kink_pos = np.where(self.hon_seg_coor[:,0]==kink_pos_length)[0][0]
+        neighbour_cores = [seg_core_pbc[kink_pos-1], seg_core_pbc[kink_pos], seg_core_pbc[kink_pos+1]]
+        
+        # determine kink-junction type
+        j_l0 = [kink_plane, neighbour_cores[0]]
+        j_l1 = [kink_plane, neighbour_cores[1]]
+        j_r1 = [kink_plane, neighbour_cores[1]] #j_r1 = j_l1
+        j_r0 = [kink_plane, neighbour_cores[2]]
 
+        # find nearby kink types in original dislocation segments for later use in different CASES
+        k_seg = [[2*kink_pos-2,2*kink_pos-1],  # kink at loop position of left 2
+                 [2*kink_pos,  2*kink_pos+1]]  # kink at right 2
+        k_vec = [kink_vec[k_seg[0][0]], kink_vec[k_seg[0][1]], 
+                 kink_vec[k_seg[1][0]], kink_vec[k_seg[1][1]]]
+
+        # case 1: already have one kink and the kink glide to right/left direction (propogate forward)
+        # in this case, only elastic interaction energy changed.
+
+
+        # case 2: kink move back (propogate backword)
+        # in this case, only elastic interaction energy changed.
+
+        # case 3: one kink back to flat (kink disappear)
+
+        # case 4: left and right segments are both flat and generate one kink (nucleation)
+        print(np.array(k_vec))
+        if np.any(np.array(k_vec)) == 0:
+            print('Kink nucleation')
+            E_left = True
+            E_right = True
 
 if __name__ == '__main__':
     import md_input as md
     disl_hon_seg, disl_ver_seg = gcdl.generate_dislocation_line(20,P=1)
-    #print(disl_hon_seg.shape, disl_ver_seg)
+    #print(disl_hon_seg)#, disl_ver_seg)
     a = 2.9365976437421808
     c = 4.6410202908664067
     C13 = 83.235
@@ -124,10 +174,10 @@ if __name__ == '__main__':
     b = np.array([a,0,0])
     rc = 10*b[0]
 
-    x1 = np.array([5,0,0])
-    x2 = np.array([0,0,0])
-    x3 = np.array([0,0,5])
-    x4 = np.array([5,0,5])
+    x1 = np.array([2*a,0,0])
+    x2 = np.array([2*a,0,5])
+    x3 = np.array([4*a,0,5])
+    x4 = np.array([4*a,0,0])
     loop = [x1,x2,x3,x4]
     
     T = 0
@@ -138,8 +188,8 @@ if __name__ == '__main__':
 
     init = loop_line_incremental_energy(loop, disl_hon_seg, disl_ver_seg, a, c, C13, C44, seg_len, b, rc)
     init.calc_elastic_inter_energy()
-    print(init.W)
-    print(unit_plane)
+    #print(init.W)
+    #print(unit_plane)
     init.loop_core_energy(unit_plane)
 
 

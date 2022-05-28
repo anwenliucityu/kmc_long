@@ -33,6 +33,7 @@ def switch_hon_seg_coor(disl_hon_seg, seg_len): # switch state to coor
     hon_seg_coor = np.empty(shape=(disl_hon_seg.shape[1],3))
     hon_seg_coor[:,0] = hon_x_coor
     hon_seg_coor[:,1:3] = disl_hon_seg[1:3,:].T
+    #print(hon_seg_coor)
     return hon_seg_coor
 
 def switch_init_ver_seg_coor(disl_ver_seg, seg_len): # switch state to coor
@@ -150,9 +151,9 @@ class elastic_interaction_energy:
 
 if __name__ == '__main__':
     W_list = []
-    for i in range(0,4):
+    for i in range(1,2):
         disl_hon_seg, disl_ver_seg = generate_dislocation_line(20,P=i)
-        #print(disl_hon_seg, disl_ver_seg)
+        #print(disl_hon_seg)#, disl_ver_seg)
         a = 2.9365976437421808
         c = 4.6410202908664067
         #print('B len = ', np.sqrt(3)*a/2)
@@ -164,7 +165,6 @@ if __name__ == '__main__':
         b = np.array([a,0,0])
         rc = 6*b[0]
         init = elastic_interaction_energy(disl_hon_seg, disl_ver_seg,a,c,C13,C44,seg_len,b,rc)
-        init.seg_coor_image()
         init.calc()
         W_list.append(init.W_el)
     print(W_list)
