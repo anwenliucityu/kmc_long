@@ -198,7 +198,7 @@ if __name__ =='__main__':
         W1.append(w)
 
     import matplotlib.pyplot as plt
-    plt.plot(range(1,100),W1,label='W1')
+    #plt.plot(range(1,100),W1,label='W1')
     plt.legend()
     plt.show()
 

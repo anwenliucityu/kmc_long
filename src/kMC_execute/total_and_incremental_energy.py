@@ -1,7 +1,9 @@
+from asyncore import loop
 import numpy as np
 import generate_calc_dislocation_line as gcdl
 import elastic_energy as ee
 import sys
+from line_math import vec_is_parallel
 #sys.path.append('../kink_energy_fitting/node_2nd_interaction') read fitting data
 
 class disl_core:
@@ -20,15 +22,11 @@ class disl_core:
         self.core_frequency = all_seg_core_prob
         return self.core_frequency
 
-#class kink_junc_energy:
- #   def __init__(self, ):
-
-
 class loop_line_incremental_energy:
     def __init__(self, loop, disl_hon_seg, disl_ver_seg, latt_a, latt_c, C13, C44, seg_len, b, rc):
         # loop =  [x1,x2,x3,x4]
-        self.end_loop =  np.array(loop)
-        self.sta_loop = np.array([loop[3], loop[0], loop[1], loop[2]])
+        self.sta_loop =  np.array(loop)
+        self.end_loop = np.array([loop[1], loop[2], loop[3], loop[0]])
         a = latt_a
         c = latt_c
         self.unit_plane    = [[0,  np.sqrt(3)*a/2, 0],   #B
@@ -104,7 +102,6 @@ class loop_line_incremental_energy:
         seg_core_pbc = np.append(seg_core,seg_core); seg_core_pbc = np.append(seg_core_pbc,seg_core)
         loop_vec = self.end_loop - self.sta_loop
         kink_vec = self.ver_end_coor - self.ver_sta_coor 
-        #print(self.ver_sta_coor.shape)
 
         # make sure loop in the right form (segment length is correct)
 
@@ -146,21 +143,33 @@ class loop_line_incremental_energy:
         k_vec = [kink_vec[k_seg[0][0]], kink_vec[k_seg[0][1]], 
                  kink_vec[k_seg[1][0]], kink_vec[k_seg[1][1]]]
 
-        # case 1: already have one kink and the kink glide to right/left direction (propogate forward)
+        # case 1: already have one kink and the kink glide to right/left direction (propogate forward or backward)
         # in this case, only elastic interaction energy changed.
+        # should be further consider that initial kink length is more than 2 unit length
+        if vec_is_parallel(k_vec[1],loop_vec[0])==True and vec_is_parallel(k_vec[3],loop_vec[2])==False: # propogate to right direction
+            # calculation elastic energy
+            # update segment position
+            True
+        if vec_is_parallel(k_vec[3],loop_vec[2])==True and vec_is_parallel(k_vec[1],loop_vec[0])==False: # propogate to left direction
+            # calculation elastic energy
+            # update segment position
+            True
 
+        # case 2: one kink back to flat (kink disappear)
+        if vec_is_parallel(k_vec[3],loop_vec[2])==True and vec_is_parallel(k_vec[1],loop_vec[0])==True:
+            # calculation elastic energy
+            # update segment position
+            # core change
+            True
 
-        # case 2: kink move back (propogate backword)
-        # in this case, only elastic interaction energy changed.
-
-        # case 3: one kink back to flat (kink disappear)
-
-        # case 4: left and right segments are both flat and generate one kink (nucleation)
-        print(np.array(k_vec))
-        if np.any(np.array(k_vec)) == 0:
+        # case 3: left and right segments are both flat and generate one kink (pure nucleation)
+        if np.any(np.array(k_vec)) == 0: # any element is 0 (no kink)
             print('Kink nucleation')
             E_left = True
             E_right = True
+
+        # case 4: partial nucleaction
+        if np.array(k_vec)
 
 if __name__ == '__main__':
     import md_input as md
@@ -174,10 +183,10 @@ if __name__ == '__main__':
     b = np.array([a,0,0])
     rc = 10*b[0]
 
-    x1 = np.array([2*a,0,0])
-    x2 = np.array([2*a,0,5])
-    x3 = np.array([4*a,0,5])
-    x4 = np.array([4*a,0,0])
+    x1 = np.array([0*a,0,0])
+    x2 = np.array([0*a,0,5])
+    x3 = np.array([2*a,0,5])
+    x4 = np.array([2*a,0,0])
     loop = [x1,x2,x3,x4]
     
     T = 0
@@ -188,9 +197,9 @@ if __name__ == '__main__':
 
     init = loop_line_incremental_energy(loop, disl_hon_seg, disl_ver_seg, a, c, C13, C44, seg_len, b, rc)
     init.calc_elastic_inter_energy()
-    #print(init.W)
+    print(init.W)
     #print(unit_plane)
-    init.loop_core_energy(unit_plane)
+    init.loop_core_energy()
 
 
 

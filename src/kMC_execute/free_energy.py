@@ -1,0 +1,1 @@
+# calculate the core energy in a long segment
