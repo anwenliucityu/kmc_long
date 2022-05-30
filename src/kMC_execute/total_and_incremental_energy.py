@@ -1,4 +1,3 @@
-from asyncore import loop
 import numpy as np
 import generate_calc_dislocation_line as gcdl
 import elastic_energy as ee
@@ -169,7 +168,7 @@ class loop_line_incremental_energy:
             E_right = True
 
         # case 4: partial nucleaction
-        if np.array(k_vec)
+        #if np.array(k_vec)
 
 if __name__ == '__main__':
     import md_input as md
@@ -181,7 +180,7 @@ if __name__ == '__main__':
     C44 = 54.91 #GPa
     seg_len = 2*a
     b = np.array([a,0,0])
-    rc = 10*b[0]
+    rc = 6*b[0]
 
     x1 = np.array([0*a,0,0])
     x2 = np.array([0*a,0,5])

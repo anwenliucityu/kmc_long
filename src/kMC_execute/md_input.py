@@ -115,7 +115,7 @@ def basic_info(latt_const):
     a = latt_const['a']
     c = latt_const['c']
     b = np.array([a,0,0])
-    rc = 10*a
+    rc = 6*a
     seg_len = 2*a
     unit_plane    = [[0,  np.sqrt(3)*a/2, 0],   #B
                      [0,  np.sqrt(3)*a/2, c],   #Pi1
