@@ -11,6 +11,8 @@ def is_parallel(x1,x2,x3,x4):
 
 def vec_is_parallel(vec1,vec2):
     # vec1 and vec2 should not be 0:
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
     if abs(vec1[0]*vec2[1]-vec1[1]*vec2[0] + vec1[0]*vec2[2]-vec1[2]*vec2[0] + vec1[1]*vec2[2]-vec1[2]*vec2[1]) <1e-4 and np.any(vec1) != 0 and np.any(vec2) != 0:
         return True               
     else:

@@ -7,23 +7,23 @@ def generate_dislocation_line(num_hon_seg, init_core=3, B=0,Pi=0,P=0,a=2.9365976
     disl_hon_seg = np.zeros(shape=(3,num_hon_seg))
     # Initiate core structure to be P core. 0=B, 1=Pi1, 2=Pi2, 3=P
     disl_hon_seg[0,:] = init_core
-    disl_ver_seg = np.zeros(shape=(1,num_hon_seg,2,2))
+    disl_ver_seg = np.zeros(shape=(num_hon_seg,2,2))
     # add kink
     if B != 0:
         disl_hon_seg[1,int(num_hon_seg/2):] += B*np.sqrt(3)*a
-        disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,0] += B*np.sqrt(3)*a/2
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,0] += B*np.sqrt(3)*a/2
+        disl_ver_seg[int(num_hon_seg/2)-1:num_hon_seg-1,1,0] += B*np.sqrt(3)*a/2
+        disl_ver_seg[int(num_hon_seg/2):int(num_hon_seg-1),0,0] += B*np.sqrt(3)*a/2
     if P != 0:
         disl_hon_seg[2,int(num_hon_seg/2):] += P*c
-        disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,1] += P*c
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,1] += P*c
+        disl_ver_seg[int(num_hon_seg/2)-1:num_hon_seg-1,1,1] += P*c
+        disl_ver_seg[int(num_hon_seg/2):int(num_hon_seg-1),0,1] += P*c
     if Pi != 0:
         disl_hon_seg[1,int(num_hon_seg/2):] += Pi*np.sqrt(3)*a
         disl_hon_seg[2,int(num_hon_seg/2):] += Pi*c
-        disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,0] += Pi*np.sqrt(3)*a/2
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,0] += Pi*np.sqrt(3)*a/2
-        disl_ver_seg[0,int(num_hon_seg/2)-1:num_hon_seg-1,1,1] += Pi*c
-        disl_ver_seg[0,int(num_hon_seg/2):int(num_hon_seg-1),0,1] += Pi*c
+        disl_ver_seg[int(num_hon_seg/2)-1:num_hon_seg-1,1,0] += Pi*np.sqrt(3)*a/2
+        disl_ver_seg[int(num_hon_seg/2):int(num_hon_seg-1),0,0] += Pi*np.sqrt(3)*a/2
+        disl_ver_seg[int(num_hon_seg/2)-1:num_hon_seg-1,1,1] += Pi*c
+        disl_ver_seg[int(num_hon_seg/2):int(num_hon_seg-1),0,1] += Pi*c
 
     #print(disl_ver_seg)
     return disl_hon_seg, disl_ver_seg
@@ -37,15 +37,16 @@ def switch_hon_seg_coor(disl_hon_seg, seg_len): # switch state to coor
     return hon_seg_coor
 
 def switch_init_ver_seg_coor(disl_ver_seg, seg_len): # switch state to coor
-    hon_x_coor = np.array(range(0,disl_ver_seg.shape[1])).reshape(-1,1) * seg_len
+    hon_x_coor = np.array(range(0,disl_ver_seg.shape[0])).reshape(-1,1) * seg_len
     hon_x_coor = np.append(hon_x_coor, hon_x_coor, axis=1).reshape(-1,)
-    ver_seg_coor = np.empty(shape=(disl_ver_seg.shape[1]*2,3))
+    ver_seg_coor = np.empty(shape=(disl_ver_seg.shape[0]*2,3))
     ver_seg_coor[:,0] = hon_x_coor
-    #print(disl_ver_seg[0].reshape(-1,2))
-    ver_seg_coor[:,1:3] = disl_ver_seg[0].reshape(-1,2)
+    #print(ver_seg_coor)
+    ver_seg_coor[:,1:3] = disl_ver_seg.reshape(-1,2)
     ref_coor = ver_seg_coor +0
-    ref_coor[disl_ver_seg.shape[1]-1,1:3] = 0
-    ref_coor[(disl_ver_seg.shape[1]-1)*2,1:3] = ref_coor[(disl_ver_seg.shape[1]-1)*2-1,1:3]
+    ref_coor[disl_ver_seg.shape[0]-1,1:3] = 0
+    ref_coor[(disl_ver_seg.shape[0]-1)*2,1:3] = ref_coor[(disl_ver_seg.shape[0]-1)*2-1,1:3]
+    #print(ver_seg_coor-ref_coor)
     return ref_coor, ver_seg_coor
     
 def image_coor_x(coor,seg_len):
@@ -101,6 +102,7 @@ class elastic_interaction_energy:
 
             # ver part
             ref_ver_coor, ver_seg_coor =switch_init_ver_seg_coor(self.disl_ver_seg, self.seg_len)
+            #print(-ref_ver_coor+ ver_seg_coor)
             ver_seg_coor_image = image_coor_x(ver_seg_coor, self.seg_len)
             ref_ver_coor_image = image_coor_x(ref_ver_coor, self.seg_len)
             self.ver_coor_image_end_point = ver_seg_coor_image
@@ -153,7 +155,8 @@ if __name__ == '__main__':
     W_list = []
     for i in range(1,2):
         disl_hon_seg, disl_ver_seg = generate_dislocation_line(20,P=i)
-        print( disl_ver_seg)
+        #print(disl_ver_seg.shape)
+        
         a = 2.9365976437421808
         c = 4.6410202908664067
         #print('B len = ', np.sqrt(3)*a/2)
@@ -164,6 +167,7 @@ if __name__ == '__main__':
         seg_len = 2*a
         b = np.array([a,0,0])
         rc = 6*b[0]
+        
         init = elastic_interaction_energy(disl_hon_seg, disl_ver_seg,a,c,C13,C44,seg_len,b,rc)
         init.calc()
         W_list.append(init.W_el)
